@@ -5,6 +5,8 @@ import ViewUiPlus from 'view-ui-plus';
 import './styles/index.less';
 import VueLazyLoad from 'vue3-lazyload';
 import VueClipboard from 'vue3-clipboard';
+import 'uno.css';
+import { setupPinia } from './store';
 
 // 自定义字体文件
 import '@/assets/fonts/font.css';
@@ -23,4 +25,5 @@ app
   .use(VueClipboard, {
     appendToBody: true,
   })
+  .use(setupPinia())
   .mount('#app');

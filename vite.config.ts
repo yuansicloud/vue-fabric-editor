@@ -5,6 +5,8 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 import eslintPlugin from 'vite-plugin-eslint'; //导入包
+import UnoCSS from 'unocss/vite';
+import presetUno from '@unocss/preset-uno';
 
 const config = ({ mode }) => {
   const isProd = mode === 'production';
@@ -29,6 +31,11 @@ const config = ({ mode }) => {
           },
         },
       }),
+      UnoCSS({ 
+        presets: [
+          presetUno(),
+        ],
+       }),
     ],
     build: {
       target: 'es2015',

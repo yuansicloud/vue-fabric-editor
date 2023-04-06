@@ -92,6 +92,7 @@ export default {
       getTemp.then((res) => {
         this.jsonFile = JSON.stringify(res.data);
         this.insertSvgFile();
+        console.log('123', this.jsonFile);
       });
     },
   },

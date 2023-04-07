@@ -25,6 +25,7 @@
   "save_as_json": "保存为JSON",
   "layers": "图层",
   "title_template": "标题模板",
+  "title_model":"制作挽联",
   "insert_svg": "插入SVG元素",
   "select_svg": "选择SVG文件",
   "please_choose": "请选择",

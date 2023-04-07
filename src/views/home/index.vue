@@ -50,7 +50,8 @@
           <div class="content">
             <!-- 生成模板 -->
             <div v-show="menuActive === 1" class="left-panel">
-              <import-tmpl></import-tmpl>
+              <!-- <import-tmpl></import-tmpl> -->
+              <import-model></import-model>
             </div>
             <!-- 常用元素 -->
             <div v-show="menuActive === 2" class="left-panel">
@@ -120,7 +121,8 @@ import lock from '@/components/lock.vue';
 import dele from '@/components/del.vue';
 
 // 左侧组件
-import importTmpl from '@/components/importTmpl.vue';
+// import importTmpl from '@/components/importTmpl.vue';
+
 import tools from '@/components/tools.vue';
 import svgEl from '@/components/svgEl.vue';
 import bgBar from '@/components/bgBar.vue';
@@ -140,6 +142,7 @@ import EventHandle from '@/utils/eventHandler';
 import { downFile } from '@/utils/utils';
 import { fabric } from 'fabric';
 import Editor from '@/core';
+import ImportModel from '@/components/importModel.vue';
 
 const event = new EventHandle();
 const canvas = {};
@@ -173,7 +176,7 @@ export default {
     importJSON,
     clone,
     flip,
-    importTmpl,
+    // importTmpl,
     centerAlign,
     group,
     zoom,
@@ -182,6 +185,7 @@ export default {
     mouseMenu,
     fontTmpl,
     replaceImg,
+    ImportModel,
   },
   created() {
     // this.$Spin.show();

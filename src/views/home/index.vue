@@ -14,7 +14,7 @@
         <Divider type="vertical" />
         <import-file></import-file>
         <Divider type="vertical" />
-        <!-- 颜色开关 -->
+        <!-- 标尺开关 -->
         <Tooltip :content="$t('grid')">
           <iSwitch v-model="ruler" size="small" class="switch"></iSwitch>
         </Tooltip>
@@ -55,6 +55,7 @@
             <!-- 常用元素 -->
             <div v-show="menuActive === 2" class="left-panel">
               <tools></tools>
+              <fontTmpl></fontTmpl>
               <svgEl></svgEl>
             </div>
             <!-- 背景设置 -->
@@ -67,14 +68,6 @@
         <div id="workspace" style="width: 100%; position: relative; background: #f1f1f1">
           <div class="canvas-box">
             <div class="inside-shadow"></div>
-            <!-- 关于js实现 我是用konvajs 的 fabric 还不熟练 api 不过理论上都是监控 mouse 事件 这个应该不难 麻烦你补全一下 -->
-            <div v-if="ruler" class="coordinates-bar coordinates-bar-top" style="width: 100%"></div>
-            <div
-              v-if="ruler"
-              class="coordinates-bar coordinates-bar-left"
-              style="height: 100%"
-            ></div>
-            <!-- class design-stage-point 点状  design-stage-grid 棋盘 -->
             <canvas id="canvas" :class="ruler ? 'design-stage-grid' : ''"></canvas>
             <zoom></zoom>
             <mouseMenu></mouseMenu>
@@ -83,9 +76,12 @@
         <!-- 属性区域 380-->
         <div style="width: 530px; height: 100%; padding: 10px; overflow-y: auto; background: #fff">
           <div v-if="show" style="padding-top: 10px">
+            <!-- 新增字体样式使用 -->
+            <!-- <Button @click="getFontJson" size="small">获取字体数据</Button> -->
             <set-size></set-size>
             <bg-bar></bg-bar>
             <group></group>
+            <replaceImg></replaceImg>
             <div class="attr-item">
               <lock></lock>
               <dele></dele>
@@ -109,6 +105,7 @@
 // 导入元素
 import importJSON from '@/components/importJSON.vue';
 import importFile from '@/components/importFile.vue';
+import fontTmpl from '@/components/fontTmpl.vue';
 
 // 顶部组件
 import align from '@/components/align.vue';
@@ -128,6 +125,7 @@ import tools from '@/components/tools.vue';
 import svgEl from '@/components/svgEl.vue';
 import bgBar from '@/components/bgBar.vue';
 import setSize from '@/components/setSize.vue';
+import replaceImg from '@/components/replaceImg.vue';
 
 // 右侧组件
 import history from '@/components/history.vue';
@@ -139,7 +137,7 @@ import mouseMenu from '@/components/contextMenu/index.vue';
 
 // 功能组件
 import EventHandle from '@/utils/eventHandler';
-
+import { downFile } from '@/utils/utils';
 import { fabric } from 'fabric';
 import Editor from '@/core';
 
@@ -182,9 +180,23 @@ export default {
     svgEl,
     history,
     mouseMenu,
+    fontTmpl,
+    replaceImg,
   },
   created() {
-    this.$Spin.show();
+    // this.$Spin.show();
+  },
+  watch: {
+    ruler: {
+      handler(value) {
+        if (!this.canvas.ruler) return;
+        if (value) {
+          this.canvas.ruler.enable();
+        } else {
+          this.canvas.ruler.disable();
+        }
+      },
+    },
   },
   mounted() {
     this.canvas = new fabric.Canvas('canvas', {
@@ -202,6 +214,22 @@ export default {
     this.show = true;
     this.$Spin.hide();
   },
+  methods: {
+    // 获取字体数据 新增字体样式使用
+    getFontJson() {
+      const activeObject = this.canvas.getActiveObject();
+      if (activeObject) {
+        const json = activeObject.toJSON(['id', 'gradientAngle', 'selectable', 'hasControls']);
+        console.log(json);
+        const fileStr = `data:text/json;charset=utf-8,${encodeURIComponent(
+          JSON.stringify(json, null, '\t')
+        )}`;
+        downFile(fileStr, 'font.json');
+        const dataUrl = activeObject.toDataURL();
+        downFile(dataUrl, 'font.png');
+      }
+    },
+  },
 };
 </script>
 <style lang="less" scoped>
@@ -218,7 +246,7 @@ export default {
 }
 
 // 属性面板样式
-/deep/ .attr-item {
+:deep(.attr-item) {
   position: relative;
   margin-bottom: 12px;
   height: 40px;
@@ -245,7 +273,7 @@ export default {
   }
 }
 
-/deep/ .ivu-layout-header {
+:deep(.ivu-layout-header) {
   --height: 45px;
   padding: 0 10px;
   border-bottom: 1px solid #eef2f8;
@@ -266,12 +294,11 @@ export default {
 .canvas-box {
   position: relative;
 }
-
+// 画布内阴影
 .inside-shadow {
   position: absolute;
   width: 100%;
   height: 100%;
-  box-shadow: inset 15px 5px blue;
   box-shadow: inset 0 0 9px 2px #0000001f;
   z-index: 2;
   pointer-events: none;
@@ -281,8 +308,6 @@ export default {
   width: 300px;
   height: 300px;
   margin: 0 auto;
-  // background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAHUlEQVQ4jWNgYGAQIYAJglEDhoUBg9+FowbQ2gAARjwKARjtnN8AAAAASUVORK5CYII=");
-  // background-size: 30px 30px;
 }
 
 #workspace {
@@ -301,22 +326,12 @@ export default {
 .ivu-menu-light.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) {
   background: none;
 }
-// 标尺与网格背景
+// 标尺
 .switch {
   margin-right: 10px;
 }
-.design-stage-point {
-  --offsetX: 0px;
-  --offsetY: 0px;
-  --size: 20px;
-  background-size: var(--size) var(--size);
-  background-image: radial-gradient(circle, #2f3542 1px, rgba(0, 0, 0, 0) 1px);
-  background-position: var(--offsetX) var(--offsetY);
-}
-
+// 网格背景
 .design-stage-grid {
-  // dom.style.setProperty('--offsetX', `${point.x + e.clientX}px`) 通过修改 偏移量 可实现跟随鼠标效果 --size 则为间距
-  // dom.style.setProperty('--offsetY', `${point.y + e.clientY}px`)
   --offsetX: 0px;
   --offsetY: 0px;
   --size: 16px;
@@ -332,43 +347,5 @@ export default {
   background-position: var(--offsetX) var(--offsetY),
     calc(var(--size) + var(--offsetX)) calc(var(--size) + var(--offsetY));
   background-size: calc(var(--size) * 2) calc(var(--size) * 2);
-}
-
-.coordinates-bar {
-  --ruler-size: 16px;
-  --ruler-c: #808080;
-  --rule4-bg-c: #252525;
-  --ruler-bdw: 1px;
-  --ruler-h: 8px;
-  --ruler-space: 5px;
-  --ruler-tall-h: 16px;
-  --ruler-tall-space: 15px;
-  position: absolute;
-  z-index: 2;
-  background-color: var(--rule4-bg-c);
-}
-.coordinates-bar-top {
-  cursor: row-resize;
-  top: 0;
-  left: 0;
-  height: var(--ruler-size);
-  width: 100%;
-  background-image: linear-gradient(90deg, var(--ruler-c) 0 var(--ruler-bdw), transparent 0),
-    linear-gradient(90deg, var(--ruler-c) 0 var(--ruler-bdw), transparent 0);
-  background-repeat: repeat-x;
-  background-size: var(--ruler-space) var(--ruler-h), var(--ruler-tall-space) var(--ruler-tall-h);
-  background-position: bottom;
-}
-.coordinates-bar-left {
-  cursor: col-resize;
-  top: var(--ruler-size);
-  width: var(--ruler-size);
-  height: 100%;
-  left: 0;
-  background-image: linear-gradient(0deg, var(--ruler-c) 0 var(--ruler-bdw), transparent 0),
-    linear-gradient(0deg, var(--ruler-c) 0 var(--ruler-bdw), transparent 0);
-  background-repeat: repeat-y;
-  background-size: var(--ruler-h) var(--ruler-space), var(--ruler-tall-h) var(--ruler-tall-space);
-  background-position: right;
 }
 </style>

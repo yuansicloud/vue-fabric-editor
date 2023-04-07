@@ -2,7 +2,7 @@
  * @Author: 秦少卫
  * @Date: 2022-09-05 22:21:55
  * @LastEditors: 秦少卫
- * @LastEditTime: 2023-03-07 01:01:13
+ * @LastEditTime: 2023-04-06 22:44:49
  * @Description: 工具文件
  */
 
@@ -42,7 +42,6 @@ export function downFontByJSON(str) {
         item.type.includes('text') && !skipFonts.includes(item.fontFamily)
     )
     .map((item) => item.fontFamily);
-  console.log(fontFamilys, '22');
   const fontFamilysAll = fontFamilys.map((fontName) => {
     const font = new FontFaceObserver(fontName);
     return font.load(null, 150000);
@@ -64,7 +63,6 @@ export function selectFiles(options) {
     input.multiple = multiple;
     return input;
   };
-
   return new Promise((resolve) => {
     const input = createInputFile(options);
 
@@ -74,5 +72,36 @@ export function selectFiles(options) {
       const event = new MouseEvent('click');
       input.dispatchEvent(event);
     }, 0);
+  });
+}
+
+/**
+ * @description: 前端下载文件
+ * @param {String} fileStr
+ * @param {String} fileType
+ */
+export function downFile(fileStr, fileName) {
+  const anchorEl = document.createElement('a');
+  anchorEl.href = fileStr;
+  anchorEl.download = fileName;
+  document.body.appendChild(anchorEl); // required for firefox
+  anchorEl.click();
+  anchorEl.remove();
+}
+
+/**
+ * @description: 创建图片元素
+ * @param {String} str 图片地址或者base64图片
+ * @return {Promise} element 图片元素
+ */
+export function insertImgFile(str) {
+  return new Promise((resolve) => {
+    const imgEl = document.createElement('img');
+    imgEl.src = str;
+    // 插入页面
+    document.body.appendChild(imgEl);
+    imgEl.onload = () => {
+      resolve(imgEl);
+    };
   });
 }

@@ -1,6 +1,8 @@
 <template>
   <div style="display: inline-block">
-    <Divider plain orientation="left" @click="modal = true">{{ $t('title_template') }}</Divider>
+    <Divider plain orientation="left" @click="modal = true">
+      {{ $t('title_model') }}
+    </Divider>
     <Tooltip
       :content="item.label"
       v-for="(item, i) in list"
@@ -21,57 +23,101 @@
         @click="getTempData(item.tempUrl)"
       />
     </Tooltip>
-    <Modal v-model="modal" title="挽联信息" @on-ok="ok" @on-cancel="cancel">
+    <Modal
+      width="800px"
+      class="modal-list"
+      v-model="modal"
+      title="挽联信息"
+      @on-ok="ok"
+      @on-cancel="cancel"
+      :mask-closable="false"
+    >
       <div class="modal-button">
         <Button @click="addItem">增加挽联</Button>
       </div>
+
       <div class="form-modal">
         <Form>
           <FormItem label="逝者：">
-            <Input v-model="decedentTitle" placeholder="名字"></Input>
+            <Input
+              size="default"
+              style="width: 200px"
+              v-model="decedentTitle"
+              placeholder="名字"
+            ></Input>
           </FormItem>
         </Form>
-      </div>
+        <div v-for="(couplet, index) in coupletList" :key="index">
+          <div style="display: flex; justify-content: space-between">
+            <div>挽联信息 {{ index + 1 }}</div>
+            <div class="icon-container" v-show="coupletList.length > 1" @click="removeItem(index)">
+              <Icon color="#000000" size="20" type="ios-close" />
+            </div>
+          </div>
 
-      <div v-for="(pageData, index) in pageDataList" :key="index">
-        <div>挽联信息 {{ index + 1 }}</div>
-        <Form class="form-modal" :model="pageData" :label-width="80">
-          <FormItem label="家属名：">
-            <Input v-model="pageData.title" placeholder="名字"></Input>
-          </FormItem>
-          <FormItem label="关系：">
-            <Select v-model="pageData.key">
-              <Option value="beijing">New York</Option>
-              <Option value="shanghai">London</Option>
-              <Option value="shenzhen">Sydney</Option>
-            </Select>
-          </FormItem>
-          <!-- 段落一 -->
-          <FormItem label="段落：">
-            <Input v-model="pageData.input" placeholder="例如：携全家"></Input>
-          </FormItem>
-          <!-- 讣告预览 -->
-          <!-- 上联 -->
-          <FormItem label="上联：">
-            {{ pageData.input }}
-          </FormItem>
-          <!-- 下联 -->
-          <FormItem label="下联：">
-            {{ pageData.input }}
-          </FormItem>
-        </Form>
+          <Form class="form-modal" :model="couplet" :label-width="80">
+            <Button class="modal-button" @click="addRelative(index)">增加家属</Button>
+            <div class="form-modal-list">
+              <div
+                class="form-modal-relative"
+                v-for="(relative, relativeIndex) in couplet.relatives"
+                :key="relativeIndex"
+              >
+                <div class="icon-container">
+                  <Icon size="20" @click="removeRelative(index, relativeIndex)" type="ios-close" />
+                </div>
+
+                <FormItem label="家属名：">
+                  <Input v-model="relative.name" placeholder="名字"></Input>
+                </FormItem>
+                <FormItem label="关系：">
+                  <Select v-model="relative.relationship">
+                    <Option
+                      v-for="relationship in relationshipList"
+                      :key="relationship.key"
+                      :value="relationship"
+                    >
+                      {{ relationship.title }}
+                    </Option>
+                  </Select>
+                </FormItem>
+              </div>
+            </div>
+
+            <!-- 段落一 -->
+            <FormItem label="段落：">
+              <Input
+                v-model="couplet.passage"
+                style="width: 60%"
+                placeholder="例如：携全家"
+              ></Input>
+            </FormItem>
+
+            <!-- 讣告预览 -->
+            <div style="display: flex">
+              <FormItem style="width: 300px" label="上联：">
+                {{ couplet.passage }}
+              </FormItem>
+              <!-- 下联 -->
+              <FormItem label="下联：">
+                {{ couplet.passage }}
+              </FormItem>
+            </div>
+            <!-- 上联 -->
+          </Form>
+        </div>
       </div>
     </Modal>
   </div>
 </template>
-
 <script>
 import select from '@/mixins/select';
 import { downFontByJSON } from '@/utils/utils';
 import axios from 'axios';
-// import { getRelationship } from '@/utils/relationship';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { relationships } from '@/utils/relationship.js';
+import { coupletTemplates } from '@/utils/coupletTemplates.js';
 
-const repoSrc = import.meta.env.APP_REPO;
 export default {
   name: 'ToolBar',
   mixins: [select],
@@ -79,40 +125,56 @@ export default {
     return {
       modal: false,
       decedentTitle: '',
-      pageDataList: [
+      selectedRelationship: null,
+      decedentName: '',
+      coupletList: [
         {
-          key: '',
-          title: '',
+          index: 1,
+          passage: '携全家',
+          relatives: [
+            {
+              name: '小明',
+              relationship: '儿子',
+            },
+          ],
         },
       ],
+      relationshipList: relationships, // 引入的关系列表
+      coupletTemplates: '',
       jsonFile: null,
-      list: [
-        {
-          label: '海报模板',
-          tempUrl: repoSrc + 'template/49234261-0187-4fdc-be80-f9dfb14c8bc6.json',
-          src: repoSrc + 'template/49234261-0187-4fdc-be80-f9dfb14c8bc6.png',
-        },
-        {
-          label: '旅游海报',
-          tempUrl: repoSrc + 'template/6ff9093a-4976-416b-8285-db5496842487.json',
-          src: repoSrc + 'template/6ff9093a-4976-416b-8285-db5496842487.png',
-        },
-        {
-          label: '邀请海报',
-          tempUrl: repoSrc + 'template/b40fee28-de9f-4304-a07e-2f55d36f137e.json',
-          src: repoSrc + 'template/b40fee28-de9f-4304-a07e-2f55d36f137e.png',
-        },
-      ],
     };
   },
-  methods: {
-    // getRelationship() {},
-    addItem() {
-      this.pageDataList.push({ key: '', title: '' });
+  watch: {
+    selectedRelationship(newVal) {
+      if (!newVal) return;
+      const { mainPassage } = newVal;
+      this.coupletList.forEach((coupletList) => {
+        coupletList.passage = mainPassage;
+      });
     },
-    removeItem() {
-      if (this.pageDataList.length > 1) {
-        this.pageDataList.pop();
+  },
+  methods: {
+    addRelative(index) {
+      if (this.coupletList[index].relatives.length < 2) {
+        this.coupletList[index].relatives.push({
+          name: '',
+          relationship: '',
+        });
+      } else {
+        this.$Message.warning('最多只能添加一个家属');
+      }
+    },
+    removeRelative(pageDataIndex, relativeIndex) {
+      if (this.coupletList[pageDataIndex].relatives.length > 1) {
+        this.coupletList[pageDataIndex].relatives.splice(relativeIndex, 1);
+      }
+    },
+    addItem() {
+      this.coupletList.push({ relatives: [{ key: '', title: '' }] });
+    },
+    removeItem(index) {
+      if (this.coupletList.length > 1 || (this.coupletList.length === 1 && index > 0)) {
+        this.coupletList.splice(index, 1);
       }
     },
     ok() {
@@ -121,7 +183,6 @@ export default {
     cancel() {
       this.$Message.info('Clicked cancel');
     },
-    // 插入文件
     insertSvgFile() {
       this.$Spin.show({
         render: (h) => h('div', this.$t('alert.loading_fonts')),
@@ -148,7 +209,6 @@ export default {
           this.$Message.error(this.$t('alert.loading_fonts_failed'));
         });
     },
-    // 获取模板数据
     getTempData(tmplUrl) {
       this.$Spin.show({
         render: (h) => h('div', this.$t('alert.loading_data')),
@@ -165,6 +225,22 @@ export default {
 </script>
 
 <style scoped lang="less">
+.icon-container {
+  text-align: right;
+}
+.modal-list {
+  margin-left: 100px;
+}
+.form-modal-list {
+  display: flex;
+  align-items: center;
+}
+.form-modal-relative {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 15px;
+  margin: 10px;
+}
 .tmpl-img {
   width: 94px;
   cursor: pointer;

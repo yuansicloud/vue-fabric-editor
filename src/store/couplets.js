@@ -1,10 +1,5 @@
-// src/store/couplets.js
 const state = {
-  couplets: [
-    {
-      name: '示例挽联',
-    },
-  ],
+  couplets: [],
 };
 
 const mutations = {
@@ -14,6 +9,10 @@ const mutations = {
   setCouplet(state, couplets) {
     state.couplets = couplets;
   },
+  updateCouplet(state, { index, updatedCouplet }) {
+    console.log('update', updatedCouplet);
+    state.couplets.splice(index, 1, updatedCouplet);
+  },
 };
 
 const actions = {
@@ -22,6 +21,9 @@ const actions = {
   },
   setCouplet({ commit }, couplets) {
     commit('setCouplet', couplets);
+  },
+  updateCouplet({ commit }, { index, updatedCouplet }) {
+    commit('updateCouplet', { index, updatedCouplet });
   },
 };
 

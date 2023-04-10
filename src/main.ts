@@ -14,7 +14,7 @@ import i18n from './language/index';
 
 // 导入 Vuex store
 import store from './store';
-
+import 'windi.css';
 const app = createApp(App);
 // app.config.globalProperties.$http = axios;
 

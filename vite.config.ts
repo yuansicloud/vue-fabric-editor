@@ -5,7 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx';
 const autoprefixer = require('autoprefixer');
 const path = require('path');
 import eslintPlugin from 'vite-plugin-eslint'; //导入包
-
+import WindiCSS from 'vite-plugin-windicss';
 const config = ({ mode }) => {
   const isProd = mode === 'production';
   const envPrefix = 'APP_';
@@ -29,6 +29,7 @@ const config = ({ mode }) => {
           },
         },
       }),
+      WindiCSS(),
     ],
     build: {
       target: 'es2015',

@@ -19,8 +19,11 @@
             <DropdownItem @click="saveToCouplet">
               <Button :disabled="selectedIndex == -1" type="primary" ghost>保存当前</Button>
             </DropdownItem>
-            <DropdownItem>
-              <Button :disabled="list.length == 0" type="warning" ghost>全部打印</Button>
+            <DropdownItem @click="printCouplet">
+              <Button :disabled="list.length == 0" type="info" ghost>打印挽联</Button>
+            </DropdownItem>
+            <DropdownItem @click="downloadCouplet">
+              <Button :disabled="list.length == 0" type="warning" ghost>下载挽联</Button>
             </DropdownItem>
             <DropdownItem @click="clearCouplets">
               <Button :disabled="list.length == 0" type="error" ghost>清空全部</Button>
@@ -28,7 +31,6 @@
           </DropdownMenu>
         </template>
       </Dropdown>
-      <!-- <Button size="small" type="warning" @click="clearCouplets">清空</Button> -->
     </div>
     <div
       class="mt-3"
@@ -168,6 +170,8 @@
   </div>
 </template>
 <script>
+import { v4 as uuid } from 'uuid';
+import axios from 'axios';
 import select from '@/mixins/select';
 import { relationships } from '@/utils/relationship.js';
 import { downFontByJSON } from '@/utils/utils';
@@ -361,6 +365,46 @@ export default {
         default:
           this.$Message.warning('保存失败！');
           break;
+      }
+    },
+    downFile(fileStr, fileType) {
+      const anchorEl = document.createElement('a');
+      anchorEl.href = fileStr;
+      anchorEl.download = `${uuid()}.${fileType}`;
+      document.body.appendChild(anchorEl); // required for firefox
+      anchorEl.click();
+      anchorEl.remove();
+    },
+    getDataUrl() {
+      const workspace = this.canvas.c.getObjects().find((item) => item.id === 'workspace');
+      this.canvas.editor.ruler.hideGuideline();
+      const { left, top, width, height } = workspace;
+      const option = {
+        name: 'New Image',
+        format: 'png',
+        quality: 1,
+        left,
+        top,
+        width,
+        height,
+      };
+      this.canvas.c.setViewportTransform([1, 0, 0, 1, 0, 0]);
+      const dataUrl = this.canvas.c.toDataURL(option);
+      this.canvas.editor.ruler.showGuideline();
+      return dataUrl;
+    },
+    async downloadCouplet() {
+      this.downFile(this.getDataUrl(), 'png');
+    },
+    async printCouplet() {
+      // const getTemp = await axios.get('http://192.168.1.48:5000/printer');
+      try {
+        const response = await axios.post('http://192.168.1.48:5000/printer', {
+          ImageDataUrl: this.getDataUrl(),
+        });
+        console.log('Image data sent to backend successfully:', response.data);
+      } catch (error) {
+        console.error('Failed to send image data to backend:', error);
       }
     },
   },

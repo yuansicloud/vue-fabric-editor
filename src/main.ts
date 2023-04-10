@@ -6,12 +6,14 @@ import 'view-ui-plus/dist/styles/viewuiplus.css';
 import './styles/index.less';
 import VueLazyLoad from 'vue3-lazyload';
 import VueClipboard from 'vue3-clipboard';
-
 // 自定义字体文件
 import '@/assets/fonts/font.css';
 // import axios from 'axios';
 
 import i18n from './language/index';
+
+// 导入 Vuex store
+import store from './store';
 
 const app = createApp(App);
 // app.config.globalProperties.$http = axios;
@@ -24,4 +26,6 @@ app
   .use(VueClipboard, {
     appendToBody: true,
   })
+  // 注册 Vuex store
+  .use(store)
   .mount('#app');

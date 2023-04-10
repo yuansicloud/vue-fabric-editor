@@ -34,6 +34,10 @@
             @on-select="(activeIndex) => (menuActive = activeIndex)"
             width="65px"
           >
+            <MenuItem :name="4" class="menu-item">
+              <Icon type="md-albums" size="24" />
+              <div>挽联</div>
+            </MenuItem>
             <MenuItem :name="1" class="menu-item">
               <Icon type="md-book" size="24" />
               <div>{{ $t('templates') }}</div>
@@ -48,6 +52,10 @@
             </MenuItem>
           </Menu>
           <div class="content">
+            <!-- 挽联 -->
+            <div v-show="menuActive === 4" class="left-panel">
+              <import-couplet></import-couplet>
+            </div>
             <!-- 生成模板 -->
             <div v-show="menuActive === 1" class="left-panel">
               <import-tmpl></import-tmpl>
@@ -122,6 +130,7 @@ import dele from '@/components/del.vue';
 
 // 左侧组件
 import importTmpl from '@/components/importTmpl.vue';
+import importCouplet from '@/components/importCouplet.vue';
 import tools from '@/components/tools.vue';
 import svgEl from '@/components/svgEl.vue';
 import bgBar from '@/components/bgBar.vue';
@@ -154,7 +163,7 @@ export default {
   },
   data() {
     return {
-      menuActive: 1,
+      menuActive: 4,
       show: false,
       select: null,
       ruler: false,
@@ -176,6 +185,7 @@ export default {
     clone,
     flip,
     importTmpl,
+    importCouplet,
     centerAlign,
     group,
     zoom,

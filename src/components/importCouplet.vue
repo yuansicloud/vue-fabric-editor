@@ -1,34 +1,107 @@
 <template>
   <div class="p-1">
-    <Divider plain orientation="left">挽联</Divider>
+    <Divider plain orientation="left">挽联 {{ this.decedentName }}</Divider>
     <div class="flex justify-between">
-      <Button size="small" type="primary" @click="showCoupletModal">新建</Button>
-      <Button size="small" type="warning" @click="clearCouplets">清空</Button>
+      <Button
+        size="small"
+        :type="list.length > 0 ? 'warning' : 'success'"
+        @click="showCoupletModal"
+      >
+        {{ list.length > 0 ? '管理' : '新建' }}
+      </Button>
+      <Dropdown style="margin-left: 20px">
+        <Button size="small" type="primary">
+          菜单
+          <Icon type="ios-arrow-down"></Icon>
+        </Button>
+        <template #list>
+          <DropdownMenu>
+            <DropdownItem @click="saveToCouplet">
+              <Button :disabled="selectedIndex == -1" type="primary" ghost>保存当前</Button>
+            </DropdownItem>
+            <DropdownItem>
+              <Button :disabled="list.length == 0" type="warning" ghost>全部打印</Button>
+            </DropdownItem>
+            <DropdownItem @click="clearCouplets">
+              <Button :disabled="list.length == 0" type="error" ghost>清空全部</Button>
+            </DropdownItem>
+          </DropdownMenu>
+        </template>
+      </Dropdown>
+      <!-- <Button size="small" type="warning" @click="clearCouplets">清空</Button> -->
     </div>
-    <div class="mt-3" v-for="(couplet, i) in list" :key="i">
+    <div
+      class="mt-3"
+      :class="
+        coupletIndex == selectedIndex ? 'border border-green-500 border-dotted border-3 shadow' : ''
+      "
+      v-for="(couplet, coupletIndex) in list"
+      :key="coupletIndex"
+    >
       <Card>
-        <template #title>{{ couplet.name }}</template>
-        <div class="border shadow pl-2 pr-2 pb-1" @click="renderContent(couplet.firstContent)">
+        <template #title>
+          <div>挽联{{ coupletIndex + 1 }}</div>
+        </template>
+        <div
+          class="shadow pl-2 pr-2 pb-1 rounded"
+          :class="
+            coupletIndex == selectedIndex && selectedType == 'first'
+              ? 'border border-blue-500 border-2'
+              : ''
+          "
+          @click="renderContent(couplet.firstContent, coupletIndex, 'first')"
+          v-if="couplet.firstText"
+        >
           <Divider plain orientation="center">上联</Divider>
           <div class="font-bold text-center">
             {{ couplet.firstText }}
           </div>
         </div>
         <div
-          class="border shadow pl-2 pr-2 pb-1 mt-1"
-          @click="renderContent(couplet.secondContent)"
+          class="shadow pl-2 pr-2 pb-1 mt-1 rounded"
+          :class="
+            coupletIndex == selectedIndex && selectedType == 'second'
+              ? 'border border-blue-500 border-2'
+              : ''
+          "
+          @click="renderContent(couplet.secondContent, coupletIndex, 'second')"
+          v-if="couplet.secondText"
         >
           <Divider plain orientation="center">下联</Divider>
           <div class="font-bold text-center">
             {{ couplet.secondText }}
           </div>
         </div>
+        <div class="font-bold pl-2 pr-2 pb-1 mt-1 text-yellow-500" v-else>请先添加挽联内容</div>
       </Card>
     </div>
     <Modal v-model="showModal" title="创建挽联" width="800">
+      <div class="flex justify-between">
+        <div class="flex items-center font-bold">
+          <div>逝者名称：</div>
+          <Input
+            type="text"
+            v-model="decedentName"
+            placeholder="逝者名称"
+            style="width: auto"
+            @on-change="updateCouplets()"
+          >
+            <template #prepend>
+              <Icon type="ios-person-outline"></Icon>
+            </template>
+          </Input>
+        </div>
+        <Button :disabled="!decedentName" type="primary" @click="addCouplet">新增挽联</Button>
+      </div>
+
       <div class="mt-3" v-for="(couplet, coupletIndex) in list" :key="coupletIndex">
         <Card>
-          <template #title>挽联{{ coupletIndex + 1 }}</template>
+          <template #title>
+            <div class="flex justify-between items-center">
+              <div>挽联{{ coupletIndex + 1 }}</div>
+              <Button size="small" type="error" @click="removeCouplet(coupletIndex)">删除</Button>
+            </div>
+          </template>
           <Form
             ref="formInline"
             v-for="(relative, relativeIndex) in couplet.relatives"
@@ -113,15 +186,33 @@ export default {
   },
   data() {
     return {
-      decedentName: '欧阳覆股',
+      selectedIndex: -1,
+      selectedType: '',
+      decedentName: '',
       showModal: false,
+      showSavingModal: false,
+      autoSave: false,
     };
   },
   methods: {
+    updateCouplets() {
+      // Access the couplets list from the Vuex store
+      const coupletsList = this.$store.state.couplets.couplets;
+
+      // Iterate over the couplets list
+      coupletsList.forEach((couplet, index) => {
+        // Process each couplet and its index here
+        this.updateCouplet(couplet);
+      });
+    },
     updateCouplet(couplet) {
+      if (!this.decedentName) {
+        return;
+      }
+
       var relativeNumber = 1;
 
-      if (couplet.relatives.length == 0) {
+      if (!couplet.relatives || couplet.relatives.length == 0) {
         return;
       }
 
@@ -162,21 +253,21 @@ export default {
     },
     showCoupletModal() {
       this.showModal = true;
-      if (this.list.length == 0) {
-        const newCouplet = {
-          firstText: '',
-          secondText: '',
-          firstContent: null,
-          secondContent: null,
-          relatives: [
-            {
-              name: '',
-              relationship: '儿子',
-            },
-          ],
-        };
-        this.$store.dispatch('couplets/addCouplet', newCouplet);
-      }
+      // if (this.list.length == 0) {
+      //   const newCouplet = {
+      //     firstText: '',
+      //     secondText: '',
+      //     firstContent: null,
+      //     secondContent: null,
+      //     relatives: [
+      //       {
+      //         name: '',
+      //         relationship: '儿子',
+      //       },
+      //     ],
+      //   };
+      //   this.$store.dispatch('couplets/addCouplet', newCouplet);
+      // }
     },
     addRelative(couplet) {
       if (couplet.relatives.length < 2) {
@@ -189,6 +280,9 @@ export default {
         this.$Message.warning('最多只能添加两个家属');
       }
     },
+    removeCouplet(coupletIndex) {
+      this.list.splice(coupletIndex, 1);
+    },
     removeRelative(couplet, relativeIndex) {
       if (couplet.relatives.length > 1) {
         couplet.relatives.splice(relativeIndex, 1);
@@ -199,21 +293,30 @@ export default {
     },
     addCouplet() {
       const newCouplet = {
-        name: '示例',
-        decedentName: '亲属名',
-        firstText: '儿子小明携全家敬挽',
-        secondText: '小花大人千古',
-        firstContent: coupletFirstSingleDefault,
-        secondContent: coupletSecondDefault,
+        decedentName: this.decedentName,
+        firstText: '',
+        secondText: '',
+        firstContent: null,
+        secondContent: null,
+        relatives: [
+          {
+            name: '',
+            relationship: '',
+          },
+        ],
       };
       this.$store.dispatch('couplets/addCouplet', newCouplet);
     },
     clearCouplets() {
+      this.selectedIndex = -1;
+      this.selectedType = '';
       this.$store.dispatch('couplets/setCouplet', []);
     },
     // 渲染内容
-    renderContent(content) {
-      console.log(content);
+    renderContent(content, newIndex, newType) {
+      this.checkSaving(newIndex, newType);
+      this.selectedIndex = newIndex;
+      this.selectedType = newType;
       var json = JSON.stringify(content);
       downFontByJSON(json)
         .then(() => {
@@ -235,6 +338,30 @@ export default {
           this.$Spin.hide();
           this.$Message.error(this.$t('alert.loading_fonts_failed'));
         });
+    },
+    checkSaving(newIndex, newType) {
+      if (this.selectedIndex == -1 && !this.selectedType) return;
+      if (this.selectedIndex == newIndex && this.selectedType == newType) return;
+      this.saveToCouplet();
+    },
+    saveToCouplet() {
+      this.$Message.success({
+        content: '正在保存当前挽联...',
+        duration: 2,
+      });
+
+      const dataUrl = this.canvas.editor.getJson();
+      switch (this.selectedType) {
+        case 'first':
+          this.list[this.selectedIndex].firstContent = dataUrl;
+          break;
+        case 'second':
+          this.list[this.selectedIndex].secondContent = dataUrl;
+          break;
+        default:
+          this.$Message.warning('保存失败！');
+          break;
+      }
     },
   },
 };

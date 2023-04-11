@@ -78,7 +78,7 @@
       </Card>
     </div>
     <Modal v-model="showModal" title="创建挽联" width="800">
-      <div class="flex justify-between">
+      <div class="flex justify-between mb-1">
         <div class="flex items-center font-bold">
           <div>逝者名称：</div>
           <Input
@@ -95,7 +95,51 @@
         </div>
         <Button :disabled="!decedentName" type="primary" @click="addCouplet">新增挽联</Button>
       </div>
-
+      <Collapse v-model="value" accordion>
+        <Panel name="1">
+          高级设置
+          <template #content>
+            <Form ref="formAdvanced" :model="coupletOption" inline>
+              <FormItem label="上联结尾" prop="firstCoupletEnding">
+                <Input
+                  type="text"
+                  v-model="coupletOption.firstCoupletEnding"
+                  placeholder="上联结尾"
+                  @on-change="updateCouplets()"
+                >
+                  <template #prepend>
+                    <Icon type="ios-person-outline"></Icon>
+                  </template>
+                </Input>
+              </FormItem>
+              <FormItem label="下联开头" prop="secondCoupletStarting">
+                <Input
+                  type="text"
+                  v-model="coupletOption.secondCoupletStarting"
+                  placeholder="下联开头"
+                  @on-change="updateCouplets()"
+                >
+                  <template #prepend>
+                    <Icon type="ios-person-outline"></Icon>
+                  </template>
+                </Input>
+              </FormItem>
+              <FormItem label="下联结尾" prop="secondCoupletEnding">
+                <Input
+                  type="text"
+                  v-model="coupletOption.secondCoupletEnding"
+                  placeholder="下联结尾"
+                  @on-change="updateCouplets()"
+                >
+                  <template #prepend>
+                    <Icon type="ios-person-outline"></Icon>
+                  </template>
+                </Input>
+              </FormItem>
+            </Form>
+          </template>
+        </Panel>
+      </Collapse>
       <div class="mt-3" v-for="(couplet, coupletIndex) in list" :key="coupletIndex">
         <Card>
           <template #title>
@@ -175,7 +219,11 @@ import axios from 'axios';
 import select from '@/mixins/select';
 import { relationships } from '@/utils/relationship.js';
 import { downFontByJSON } from '@/utils/utils';
-import { coupletFirstSingleDefault, coupletSecondDefault } from '@/templates/couplet';
+import {
+  coupletFirstSingleDefault,
+  coupletSecondDefault,
+  coupletFirstDoubleDefault,
+} from '@/templates/couplet';
 export default {
   name: 'ToolBar',
   mixins: [select],
@@ -190,6 +238,11 @@ export default {
   },
   data() {
     return {
+      coupletOption: {
+        firstCoupletEnding: '敬挽',
+        secondCoupletStarting: '沉痛哀悼',
+        secondCoupletEnding: '千古',
+      },
       selectedIndex: -1,
       selectedType: '',
       decedentName: '',
@@ -228,8 +281,9 @@ export default {
         return;
       }
 
-      couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}敬挽`;
-      couplet.secondText = `沉痛哀念${this.decedentName}${firstRelation.decedentTitle}千古`;
+      couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}${this.coupletOption.firstCoupletEnding}`;
+      couplet.secondText = `${this.coupletOption.secondCoupletStarting}${this.decedentName}${firstRelation.decedentTitle}${this.coupletOption.secondCoupletEnding}`;
+      // couplet.secondText = `${this.decedentName}${firstRelation.decedentTitle}千古`;
 
       if (couplet.relatives.length == 2) {
         var secondRelative = couplet.relatives[1];
@@ -250,6 +304,12 @@ export default {
         this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
         return;
       }
+      if (relativeNumber == 2) {
+        couplet.firstContent = coupletFirstDoubleDefault;
+        couplet.secondContent = coupletSecondDefault;
+        this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
+        return;
+      }
     },
     replaceText(template, key, value) {
       var element = template.objects.find((x) => x.id == key);
@@ -257,21 +317,6 @@ export default {
     },
     showCoupletModal() {
       this.showModal = true;
-      // if (this.list.length == 0) {
-      //   const newCouplet = {
-      //     firstText: '',
-      //     secondText: '',
-      //     firstContent: null,
-      //     secondContent: null,
-      //     relatives: [
-      //       {
-      //         name: '',
-      //         relationship: '儿子',
-      //       },
-      //     ],
-      //   };
-      //   this.$store.dispatch('couplets/addCouplet', newCouplet);
-      // }
     },
     addRelative(couplet) {
       if (couplet.relatives.length < 2) {

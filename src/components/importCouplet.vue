@@ -80,7 +80,7 @@
         <div class="font-bold pl-2 pr-2 pb-1 mt-1 text-yellow-500" v-else>请先添加挽联内容</div>
       </Card>
     </div>
-    <Modal v-model="showModal" title="创建挽联" width="800">
+    <Modal v-model="showModal" :mask-closable="false" title="创建挽联" width="800">
       <div class="flex justify-between mb-1">
         <div class="flex items-center font-bold">
           <div>逝者名称：</div>
@@ -147,77 +147,79 @@
           </template>
         </Panel>
       </Collapse>
-      <div class="mt-3" v-for="(couplet, coupletIndex) in list" :key="coupletIndex">
-        <Card>
-          <template #title>
-            <div class="flex justify-between items-center">
-              <div>挽联{{ coupletIndex + 1 }}</div>
-              <Button size="small" type="error" @click="removeCouplet(coupletIndex)">删除</Button>
-            </div>
-          </template>
-          <Form
-            ref="formInline"
-            v-for="(relative, relativeIndex) in couplet.relatives"
-            :key="relativeIndex"
-            :model="relative"
-            inline
-          >
-            <FormItem prop="name">
-              <Input
-                maxlength="4"
-                type="text"
-                v-model="relative.name"
-                placeholder="亲属名称"
-                @on-change="updateCouplet(couplet)"
-              >
-                <template #prepend>
-                  <Icon type="ios-person-outline"></Icon>
-                </template>
-              </Input>
-            </FormItem>
-            <FormItem prop="relationship">
-              <Select
-                prefix="ios-home"
-                v-model="relative.relationship"
-                placeholder="亲属关系"
-                @on-change="updateCouplet(couplet)"
-              >
-                <Option
-                  v-for="relationship in relationships"
-                  :key="relationship.key"
-                  :value="relationship.key"
+      <Scroll :on-reach-bottom="handleReachBottom" height="500">
+        <div class="mt-3" v-for="(couplet, coupletIndex) in list" :key="coupletIndex">
+          <Card>
+            <template #title>
+              <div class="flex justify-between items-center">
+                <div>挽联{{ coupletIndex + 1 }}</div>
+                <Button size="small" type="error" @click="removeCouplet(coupletIndex)">删除</Button>
+              </div>
+            </template>
+            <Form
+              ref="formInline"
+              v-for="(relative, relativeIndex) in couplet.relatives"
+              :key="relativeIndex"
+              :model="relative"
+              inline
+            >
+              <FormItem prop="name">
+                <Input
+                  maxlength="4"
+                  type="text"
+                  v-model="relative.name"
+                  placeholder="亲属名称"
+                  @on-change="updateCouplet(couplet)"
                 >
-                  {{ relationship.key }}
-                </Option>
-              </Select>
-            </FormItem>
-            <FormItem v-if="couplet.relatives.length <= 1">
-              <Button size="small" type="success" @click="addRelative(couplet, coupletIndex)">
-                新增家属
-              </Button>
-            </FormItem>
-            <FormItem v-if="couplet.relatives.length >= 2">
-              <Button size="small" type="error" @click="removeRelative(couplet, relativeIndex)">
-                删除家属
-              </Button>
-            </FormItem>
-          </Form>
-          <div class="flex justify-around items-center">
-            <div class="border shadow pl-2 pr-2 pb-1 w-1/2" v-if="couplet.firstText">
-              <Divider plain orientation="center">上联</Divider>
-              <div class="font-bold text-center">
-                {{ couplet.firstText + this.coupletOption.firstCoupletEnding }}
+                  <template #prepend>
+                    <Icon type="ios-person-outline"></Icon>
+                  </template>
+                </Input>
+              </FormItem>
+              <FormItem prop="relationship">
+                <Select
+                  prefix="ios-home"
+                  v-model="relative.relationship"
+                  placeholder="亲属关系"
+                  @on-change="updateCouplet(couplet)"
+                >
+                  <Option
+                    v-for="relationship in relationships"
+                    :key="relationship.key"
+                    :value="relationship.key"
+                  >
+                    {{ relationship.key }}
+                  </Option>
+                </Select>
+              </FormItem>
+              <FormItem v-if="couplet.relatives.length <= 1">
+                <Button size="small" type="success" @click="addRelative(couplet, coupletIndex)">
+                  新增家属
+                </Button>
+              </FormItem>
+              <FormItem v-if="couplet.relatives.length >= 2">
+                <Button size="small" type="error" @click="removeRelative(couplet, relativeIndex)">
+                  删除家属
+                </Button>
+              </FormItem>
+            </Form>
+            <div class="flex justify-around items-center">
+              <div class="border shadow pl-2 pr-2 pb-1 w-1/2" v-if="couplet.firstText">
+                <Divider plain orientation="center">上联</Divider>
+                <div class="font-bold text-center">
+                  {{ couplet.firstText + this.coupletOption.firstCoupletEnding }}
+                </div>
+              </div>
+              <div class="border shadow pl-2 pr-2 pb-1 mt-1 w-1/2" v-if="couplet.secondText">
+                <Divider plain orientation="center">下联</Divider>
+                <div class="font-bold text-center">
+                  {{ couplet.secondText }}
+                </div>
               </div>
             </div>
-            <div class="border shadow pl-2 pr-2 pb-1 mt-1 w-1/2" v-if="couplet.secondText">
-              <Divider plain orientation="center">下联</Divider>
-              <div class="font-bold text-center">
-                {{ couplet.secondText }}
-              </div>
-            </div>
-          </div>
-        </Card>
-      </div>
+          </Card>
+        </div>
+      </Scroll>
     </Modal>
   </div>
 </template>
@@ -308,7 +310,7 @@ export default {
       if (relativeNumber == 1) {
         couplet.firstContent = coupletFirstSingleDefault;
         couplet.secondContent = coupletSecondDefault;
-        this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+        // this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
         //上联部分
         this.replaceText(couplet.firstContent, 'firstCoupletFull', couplet.firstText);
         this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
@@ -354,19 +356,21 @@ export default {
       }
     },
     //设置行高
-    getTexteHight(template, key) {
-      var element = template.objects.find((x) => x.id == key);
-      if (!element) {
-        return;
-      }
+    getTexteHight(element) {
       if (element.text.length == 12) {
         element.lineHeight = 1.06;
       }
-      if (element.text.length == 1) {
+      if (element.text.length == 11) {
         element.lineHeight = 1.16;
       }
       if (element.text.length == 10) {
         element.lineHeight = 1.26;
+      }
+      if (element.text.length == 9) {
+        element.lineHeight = 1.46;
+      }
+      if (element.text.length == 8) {
+        element.lineHeight = 1.56;
       }
     },
     replaceText(template, key, value) {
@@ -376,6 +380,7 @@ export default {
         return;
       }
       element.text = value;
+      this.getTexteHight(element);
     },
     showCoupletModal() {
       this.showModal = true;

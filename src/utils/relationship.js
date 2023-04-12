@@ -1,5 +1,29 @@
 export const relationships = [
   {
+    key: '父亲',
+    title: '父亲',
+    mainPassage: '携全家',
+    decedentTitle: '孩子',
+  },
+  {
+    key: '母亲',
+    title: '母亲',
+    mainPassage: '携全家',
+    decedentTitle: '孩子',
+  },
+  {
+    key: '爷爷',
+    title: '爷爷',
+    mainPassage: '携全家',
+    decedentTitle: '孩子',
+  },
+  {
+    key: '奶奶',
+    title: '奶奶',
+    mainPassage: '携全家',
+    decedentTitle: '孩子',
+  },
+  {
     key: '女儿',
     title: '女儿',
     mainPassage: '携全家',
@@ -63,19 +87,19 @@ export const relationships = [
     key: '叔叔',
     title: '叔叔',
     mainPassage: '携全家',
-    decedentTitle: '大人',
+    decedentTitle: '孩子',
   },
   {
     key: '舅舅',
     title: '舅舅',
     mainPassage: '携全家',
-    decedentTitle: '大人',
+    decedentTitle: '孩子',
   },
   {
     key: '嬢嬢',
     title: '嬢嬢',
     mainPassage: '携全家',
-    decedentTitle: '大人',
+    decedentTitle: '孩子',
   },
   {
     key: '同事',

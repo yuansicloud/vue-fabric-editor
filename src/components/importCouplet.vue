@@ -22,6 +22,9 @@
             <DropdownItem @click="printCouplet">
               <Button :disabled="list.length == 0" type="info" ghost>打印挽联</Button>
             </DropdownItem>
+            <DropdownItem @click="printCouplets">
+              <Button :disabled="list.length == 0" type="success" ghost>全部打印</Button>
+            </DropdownItem>
             <DropdownItem @click="downloadCouplet">
               <Button :disabled="list.length == 0" type="warning" ghost>下载挽联</Button>
             </DropdownItem>
@@ -418,15 +421,46 @@ export default {
     clearCouplets() {
       this.selectedIndex = -1;
       this.selectedType = '';
+      this.decedentName = '';
       this.$store.dispatch('couplets/setCouplet', []);
+      this.canvas.c.getObjects().forEach((obj) => {
+        if (obj.id !== 'workspace') {
+          this.canvas.c.remove(obj);
+        }
+      });
+      this.canvas.c.discardActiveObject();
+      this.canvas.c.renderAll();
     },
     // 渲染内容
-    renderContent(content, newIndex, newType) {
+    async renderContent(content, newIndex, newType) {
       this.checkSaving(newIndex, newType);
       this.selectedIndex = newIndex;
       this.selectedType = newType;
       var json = JSON.stringify(content);
-      downFontByJSON(json)
+      await downFontByJSON(json)
+        .then(() => {
+          this.$Spin.hide();
+          this.canvas.c.loadFromJSON(json, () => {
+            this.canvas.c.renderAll.bind(this.canvas.c);
+            setTimeout(() => {
+              const workspace = this.canvas.c.getObjects().find((item) => item.id === 'workspace');
+              workspace.set('selectable', false);
+              workspace.set('hasControls', false);
+              this.canvas.c.requestRenderAll();
+              this.canvas.editor.editorWorkspace.setSize(workspace.width, workspace.height);
+              this.canvas.c.renderAll();
+              this.canvas.c.requestRenderAll();
+            }, 100);
+          });
+        })
+        .catch(() => {
+          this.$Spin.hide();
+          this.$Message.error(this.$t('alert.loading_fonts_failed'));
+        });
+    },
+    async renderContentSimple(content) {
+      var json = JSON.stringify(content);
+      await downFontByJSON(json)
         .then(() => {
           this.$Spin.hide();
           this.canvas.c.loadFromJSON(json, () => {
@@ -479,7 +513,7 @@ export default {
       anchorEl.click();
       anchorEl.remove();
     },
-    getDataUrl() {
+    async getDataUrl() {
       const workspace = this.canvas.c.getObjects().find((item) => item.id === 'workspace');
       this.canvas.editor.ruler.hideGuideline();
       const { left, top, width, height } = workspace;
@@ -501,14 +535,44 @@ export default {
       this.downFile(this.getDataUrl(), 'png');
     },
     async printCouplet() {
-      // const getTemp = await axios.get('http://192.168.1.48:5000/printer');
       try {
         const response = await axios.post('http://192.168.1.48:5000/printer', {
-          ImageDataUrl: this.getDataUrl(),
+          ImageDataUrl: await this.getDataUrl(),
         });
         console.log('Image data sent to backend successfully:', response.data);
       } catch (error) {
         console.error('Failed to send image data to backend:', error);
+      }
+    },
+    async printCouplets() {
+      try {
+        for (let i = 0; i < this.list.length; i++) {
+          const couplet = this.list[i];
+          this.$Message.success({
+            content: `正在打印:${couplet.firstText}`,
+            duration: 2,
+          });
+          this.selectedIndex = i;
+          this.selectedType = 'first';
+          await this.renderContentSimple(couplet.firstContent);
+          await this.printCouplet();
+          this.$Message.success({
+            content: `正在打印:${couplet.secondText}`,
+            duration: 2,
+          });
+          this.selectedIndex = i;
+          this.selectedType = 'second';
+          await this.renderContentSimple(couplet.secondContent);
+          await this.printCouplet();
+        }
+        this.selectedIndex = -1;
+        this.selectedType = '';
+      } catch (error) {
+        this.$Message.success({
+          content: '打印失败',
+          duration: 2,
+        });
+        console.error('打印失败', error);
       }
     },
   },

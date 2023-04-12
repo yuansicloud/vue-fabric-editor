@@ -82,6 +82,7 @@
         <div class="flex items-center font-bold">
           <div>逝者名称：</div>
           <Input
+            maxlength="4"
             type="text"
             v-model="decedentName"
             placeholder="逝者名称"
@@ -102,6 +103,7 @@
             <Form ref="formAdvanced" :model="coupletOption" inline>
               <FormItem label="上联结尾" prop="firstCoupletEnding">
                 <Input
+                  maxlength="2"
                   type="text"
                   v-model="coupletOption.firstCoupletEnding"
                   placeholder="上联结尾"
@@ -114,6 +116,7 @@
               </FormItem>
               <FormItem label="下联开头" prop="secondCoupletStarting">
                 <Input
+                  maxlength="4"
                   type="text"
                   v-model="coupletOption.secondCoupletStarting"
                   placeholder="下联开头"
@@ -126,6 +129,7 @@
               </FormItem>
               <FormItem label="下联结尾" prop="secondCoupletEnding">
                 <Input
+                  maxlength="2"
                   type="text"
                   v-model="coupletOption.secondCoupletEnding"
                   placeholder="下联结尾"
@@ -157,6 +161,7 @@
           >
             <FormItem prop="name">
               <Input
+                maxlength="4"
                 type="text"
                 v-model="relative.name"
                 placeholder="亲属名称"
@@ -281,9 +286,8 @@ export default {
         return;
       }
 
-      couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}${this.coupletOption.firstCoupletEnding}`;
+      couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}`;
       couplet.secondText = `${this.coupletOption.secondCoupletStarting}${this.decedentName}${firstRelation.decedentTitle}${this.coupletOption.secondCoupletEnding}`;
-      // couplet.secondText = `${this.decedentName}${firstRelation.decedentTitle}千古`;
 
       if (couplet.relatives.length == 2) {
         var secondRelative = couplet.relatives[1];
@@ -293,7 +297,7 @@ export default {
         if (!secondRelation || !secondRelative || !secondRelative.name) {
           relativeNumber = 1;
         } else {
-          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}敬挽`;
+          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}${this.coupletOption.firstCoupletEnding}`;
           relativeNumber = 2;
         }
       }
@@ -301,18 +305,73 @@ export default {
       if (relativeNumber == 1) {
         couplet.firstContent = coupletFirstSingleDefault;
         couplet.secondContent = coupletSecondDefault;
+        this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+        //上联部分
+        this.replaceText(couplet.firstContent, 'firstCoupletFull', couplet.firstText);
+        this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+
+        this.replaceText(couplet.firstContent, 'firstTitle', firstRelation.title);
+        this.replaceText(couplet.firstContent, 'firstName', firstRelative.name);
+        this.replaceText(couplet.firstContent, 'mainPassage', firstRelation.mainPassage);
+        this.replaceText(
+          couplet.firstContent,
+          'firstCoupletEnding',
+          this.coupletOption.firstCoupletEnding
+        );
+        //下联部分
+        this.replaceText(
+          couplet.secondContent,
+          'secondCoupletStarting',
+          this.coupletOption.secondCoupletStarting
+        );
         this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
+        this.replaceText(
+          couplet.secondContent,
+          'secondCoupletEnding',
+          this.coupletOption.secondCoupletEnding
+        );
+        this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
         return;
       }
       if (relativeNumber == 2) {
         couplet.firstContent = coupletFirstDoubleDefault;
         couplet.secondContent = coupletSecondDefault;
-        this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
+        //上联部分
+        this.replaceText(couplet.firstContent, 'firstTitle', firstRelation.title);
+        this.replaceText(couplet.firstContent, 'firstName', firstRelative.name);
+        this.replaceText(couplet.firstContent, 'secondTitle', secondRelation.title);
+        this.replaceText(couplet.firstContent, 'secondName', secondRelative.name);
+        this.replaceText(
+          couplet.firstContent,
+          'firstCoupletEnding',
+          this.coupletOption.firstCoupletEnding
+        );
+
         return;
+      }
+    },
+    //设置行高
+    getTexteHight(template, key) {
+      var element = template.objects.find((x) => x.id == key);
+      if (!element) {
+        return;
+      }
+      if (element.text.length == 12) {
+        element.lineHeight = 1.06;
+      }
+      if (element.text.length == 1) {
+        element.lineHeight = 1.16;
+      }
+      if (element.text.length == 10) {
+        element.lineHeight = 1.26;
       }
     },
     replaceText(template, key, value) {
       var element = template.objects.find((x) => x.id == key);
+
+      if (!element) {
+        return;
+      }
       element.text = value;
     },
     showCoupletModal() {

@@ -79,7 +79,7 @@ yarn serve
 - [x] 绘制线条
 - [ ] svgIcon 汇总
 - [x] 标题样式列表模板
-- [ ] 预览
+- [x] 预览
 
 第二阶段
 
@@ -114,17 +114,17 @@ yarn serve
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/hudenghui">
-            <img src="https://avatars.githubusercontent.com/u/17875293?v=4" width="80;" alt="hudenghui"/>
-            <br />
-            <sub><b>hudenghui</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/bigFace2019">
             <img src="https://avatars.githubusercontent.com/u/55651401?v=4" width="80;" alt="bigFace2019"/>
             <br />
             <sub><b>bigFace2019</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/hudenghui">
+            <img src="https://avatars.githubusercontent.com/u/17875293?v=4" width="80;" alt="hudenghui"/>
+            <br />
+            <sub><b>hudenghui</b></sub>
         </a>
     </td>
     <td align="center">
@@ -168,6 +168,13 @@ yarn serve
             <img src="https://avatars.githubusercontent.com/u/13568242?v=4" width="80;" alt="xiaozeo"/>
             <br />
             <sub><b>xiaozeo</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/luke358">
+            <img src="https://avatars.githubusercontent.com/u/48149577?v=4" width="80;" alt="luke358"/>
+            <br />
+            <sub><b>luke358</b></sub>
         </a>
     </td></tr>
 </table>

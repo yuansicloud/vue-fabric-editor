@@ -7,3 +7,8 @@
   font-family: '华康金刚黑';
   src: url('./cn/华康金刚黑.ttf');
 }
+
+@font-face {
+  font-family: '鸿雷行书简体';
+  src: url('./cn/鸿雷行书简体.ttf');
+}

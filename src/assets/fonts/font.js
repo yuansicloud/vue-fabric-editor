@@ -15,6 +15,10 @@ const cnList = [
     name: '华康金刚黑',
     fontFamily: '华康金刚黑',
   },
+  {
+    name: '鸿雷行书简体',
+    fontFamily: '鸿雷行书简体',
+  },
 ];
 
 const enList = [];

@@ -56,7 +56,7 @@
         >
           <Divider plain orientation="center">上联</Divider>
           <div class="font-bold text-center">
-            {{ couplet.firstText }}
+            {{ couplet.firstText + this.coupletOption.firstCoupletEnding }}
           </div>
         </div>
         <div
@@ -203,7 +203,7 @@
             <div class="border shadow pl-2 pr-2 pb-1 w-1/2" v-if="couplet.firstText">
               <Divider plain orientation="center">上联</Divider>
               <div class="font-bold text-center">
-                {{ couplet.firstText }}
+                {{ couplet.firstText + this.coupletOption.firstCoupletEnding }}
               </div>
             </div>
             <div class="border shadow pl-2 pr-2 pb-1 mt-1 w-1/2" v-if="couplet.secondText">

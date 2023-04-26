@@ -158,13 +158,20 @@ yarn serve
         </a>
     </td>
     <td align="center">
+        <a href="https://github.com/slarkerino">
+            <img src="https://avatars.githubusercontent.com/u/7014849?v=4" width="80;" alt="slarkerino"/>
+            <br />
+            <sub><b>slarkerino</b></sub>
+        </a>
+    </td></tr>
+<tr>
+    <td align="center">
         <a href="https://github.com/xiaozhuclassmate">
             <img src="https://avatars.githubusercontent.com/u/87807886?v=4" width="80;" alt="xiaozhuclassmate"/>
             <br />
             <sub><b>xiaozhuclassmate</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/liucity">
             <img src="https://avatars.githubusercontent.com/u/12006542?v=4" width="80;" alt="liucity"/>
@@ -194,27 +201,20 @@ yarn serve
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/slarkerino">
-            <img src="https://avatars.githubusercontent.com/u/7014849?v=4" width="80;" alt="slarkerino"/>
-            <br />
-            <sub><b>slarkerino</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/haoxiaodeyitiaoyu">
             <img src="https://avatars.githubusercontent.com/u/82426691?v=4" width="80;" alt="haoxiaodeyitiaoyu"/>
             <br />
             <sub><b>haoxiaodeyitiaoyu</b></sub>
         </a>
-    </td>
+    </td></tr>
+<tr>
     <td align="center">
         <a href="https://github.com/vvbear">
             <img src="https://avatars.githubusercontent.com/u/32010827?v=4" width="80;" alt="vvbear"/>
             <br />
             <sub><b>vvbear</b></sub>
         </a>
-    </td></tr>
-<tr>
+    </td>
     <td align="center">
         <a href="https://github.com/xiaozeo">
             <img src="https://avatars.githubusercontent.com/u/13568242?v=4" width="80;" alt="xiaozeo"/>

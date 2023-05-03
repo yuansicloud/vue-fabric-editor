@@ -151,17 +151,17 @@ yarn serve
         </a>
     </td>
     <td align="center">
-        <a href="https://github.com/hudenghui">
-            <img src="https://avatars.githubusercontent.com/u/17875293?v=4" width="80;" alt="hudenghui"/>
-            <br />
-            <sub><b>hudenghui</b></sub>
-        </a>
-    </td>
-    <td align="center">
         <a href="https://github.com/slarkerino">
             <img src="https://avatars.githubusercontent.com/u/7014849?v=4" width="80;" alt="slarkerino"/>
             <br />
             <sub><b>slarkerino</b></sub>
+        </a>
+    </td>
+    <td align="center">
+        <a href="https://github.com/hudenghui">
+            <img src="https://avatars.githubusercontent.com/u/17875293?v=4" width="80;" alt="hudenghui"/>
+            <br />
+            <sub><b>hudenghui</b></sub>
         </a>
     </td></tr>
 <tr>

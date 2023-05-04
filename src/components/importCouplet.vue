@@ -252,6 +252,7 @@ export default {
         firstCoupletEnding: '敬挽',
         secondCoupletStarting: '沉痛哀悼',
         secondCoupletEnding: '千古',
+        printerUrl: 'http://127.0.0.1:5000',
       },
       selectedIndex: -1,
       selectedType: '',
@@ -261,15 +262,27 @@ export default {
       autoSave: false,
     };
   },
+  mounted() {
+    // load local storage
+    var storedOption = localStorage.getItem('coupletOption');
+    console.log(storedOption);
+    if (storedOption != 'undefined') {
+      this.coupletOption = JSON.parse(storedOption);
+    }
+  },
   methods: {
+    changeCoupletOption() {
+      localStorage.setItem('coupletOption', JSON.stringify(this.coupletOptions));
+    },
     updateCouplets() {
+      this.changeCoupletOption();
       // Access the couplets list from the Vuex store
       const coupletsList = this.$store.state.couplets.couplets;
 
       // Iterate over the couplets list
       coupletsList.forEach((couplet, index) => {
         // Process each couplet and its index here
-        this.updateCouplet(couplet);
+        this.updateCouplet(couplet, index);
       });
     },
     updateCouplet(couplet) {
@@ -310,8 +323,8 @@ export default {
       if (relativeNumber == 1) {
         couplet.firstContent = coupletFirstSingleDefault;
         couplet.secondContent = coupletSecondDefault;
-        // this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
         //上联部分
+        // this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
         this.replaceText(couplet.firstContent, 'firstCoupletFull', couplet.firstText);
         this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
 
@@ -367,10 +380,10 @@ export default {
         element.lineHeight = 1.26;
       }
       if (element.text.length == 9) {
-        element.lineHeight = 1.46;
+        element.lineHeight = 1.06;
       }
       if (element.text.length == 8) {
-        element.lineHeight = 1.56;
+        element.lineHeight = 1.26;
       }
     },
     replaceText(template, key, value) {
@@ -541,7 +554,7 @@ export default {
     },
     async printCouplet() {
       try {
-        const response = await axios.post('http://192.168.1.48:5000/printer', {
+        const response = await axios.post(`${this.coupletOption.printerUrl}/printer`, {
           ImageDataUrl: await this.getDataUrl(),
         });
         console.log('Image data sent to backend successfully:', response.data);

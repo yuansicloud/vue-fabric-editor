@@ -59,7 +59,7 @@
         >
           <Divider plain orientation="center">上联</Divider>
           <div class="font-bold text-center">
-            {{ couplet.firstText + this.coupletOption.firstCoupletEnding }}
+            {{ couplet.firstText }}
           </div>
         </div>
         <div
@@ -82,20 +82,29 @@
     </div>
     <Modal v-model="showModal" :mask-closable="false" title="创建挽联" width="800">
       <div class="flex justify-between mb-1">
-        <div class="flex items-center font-bold">
-          <div>逝者名称：</div>
-          <Input
-            maxlength="4"
-            type="text"
-            v-model="decedentName"
-            placeholder="逝者名称"
-            style="width: auto"
-            @on-change="updateCouplets()"
-          >
-            <template #prepend>
-              <Icon type="ios-person-outline"></Icon>
-            </template>
-          </Input>
+        <div class="flex">
+          <div class="flex items-center font-bold">
+            <div>逝者名称：</div>
+            <Input
+              maxlength="4"
+              type="text"
+              v-model="decedentName"
+              placeholder="逝者名称"
+              style="width: auto"
+              @on-change="updateCouplets()"
+            >
+              <template #prepend>
+                <Icon type="ios-person-outline"></Icon>
+              </template>
+            </Input>
+          </div>
+          <div class="flex font-bold items-center justify-between">
+            <div>性别：</div>
+            <RadioGroup v-model="decedentSex" @on-change="updateCouplets()">
+              <Radio label="男"></Radio>
+              <Radio label="女"></Radio>
+            </RadioGroup>
+          </div>
         </div>
         <Button :disabled="!decedentName" type="primary" @click="addCouplet">新增挽联</Button>
       </div>
@@ -104,7 +113,7 @@
           高级设置
           <template #content>
             <Form ref="formAdvanced" :model="coupletOption" inline>
-              <FormItem label="上联结尾" prop="firstCoupletEnding">
+              <!-- <FormItem label="上联结尾" prop="firstCoupletEnding">
                 <Input
                   maxlength="2"
                   type="text"
@@ -116,7 +125,7 @@
                     <Icon type="ios-person-outline"></Icon>
                   </template>
                 </Input>
-              </FormItem>
+              </FormItem> -->
               <FormItem label="下联开头" prop="secondCoupletStarting">
                 <Input
                   maxlength="4"
@@ -143,11 +152,20 @@
                   </template>
                 </Input>
               </FormItem>
+              <FormItem label="本地IP地址" prop="printerUrl">
+                <Input
+                  maxlength="2"
+                  type="text"
+                  v-model="coupletOption.printerUrl"
+                  placeholder="本地IP地址"
+                  @on-change="updateCouplets()"
+                ></Input>
+              </FormItem>
             </Form>
           </template>
         </Panel>
       </Collapse>
-      <Scroll :on-reach-bottom="handleReachBottom" height="500">
+      <Scroll height="500">
         <div class="mt-3" v-for="(couplet, coupletIndex) in list" :key="coupletIndex">
           <Card>
             <template #title>
@@ -207,7 +225,7 @@
               <div class="border shadow pl-2 pr-2 pb-1 w-1/2" v-if="couplet.firstText">
                 <Divider plain orientation="center">上联</Divider>
                 <div class="font-bold text-center">
-                  {{ couplet.firstText + this.coupletOption.firstCoupletEnding }}
+                  {{ couplet.firstText }}
                 </div>
               </div>
               <div class="border shadow pl-2 pr-2 pb-1 mt-1 w-1/2" v-if="couplet.secondText">
@@ -249,40 +267,58 @@ export default {
   data() {
     return {
       coupletOption: {
-        firstCoupletEnding: '敬挽',
         secondCoupletStarting: '沉痛哀悼',
         secondCoupletEnding: '千古',
+        printerUrl: 'http://127.0.0.1:5000',
       },
       selectedIndex: -1,
       selectedType: '',
       decedentName: '',
+      decedentSex: '男',
       showModal: false,
       showSavingModal: false,
       autoSave: false,
     };
   },
+  mounted() {
+    // load local storage
+    var storedOption = localStorage.getItem('coupletOption');
+    console.log(storedOption);
+    if (storedOption != 'undefined') {
+      this.coupletOption = JSON.parse(storedOption);
+    }
+  },
   methods: {
+    getDecedentTitle(firstRelation) {
+      return this.decedentSex == '男'
+        ? firstRelation.maleDecedentTitle
+        : firstRelation.femaleDecedentTitle;
+    },
+    changeCoupletOption() {
+      localStorage.setItem('coupletOption', JSON.stringify(this.coupletOptions));
+    },
     updateCouplets() {
+      this.changeCoupletOption();
+
       // Access the couplets list from the Vuex store
       const coupletsList = this.$store.state.couplets.couplets;
 
       // Iterate over the couplets list
       coupletsList.forEach((couplet, index) => {
         // Process each couplet and its index here
-        this.updateCouplet(couplet);
+        this.updateCouplet(couplet, index);
       });
     },
     updateCouplet(couplet) {
       if (!this.decedentName) {
         return;
       }
-
       var relativeNumber = 1;
 
       if (!couplet.relatives || couplet.relatives.length == 0) {
         return;
       }
-
+      console.log('123', this.decedentSex);
       var firstRelative = couplet.relatives[0];
 
       var firstRelation = this.relationships.find((x) => x.key == firstRelative.relationship);
@@ -292,7 +328,9 @@ export default {
       }
 
       couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}`;
-      couplet.secondText = `${this.coupletOption.secondCoupletStarting}${this.decedentName}${firstRelation.decedentTitle}${this.coupletOption.secondCoupletEnding}`;
+      couplet.secondText = `${this.coupletOption.secondCoupletStarting}${
+        this.decedentName
+      }${this.getDecedentTitle(firstRelation)}${this.coupletOption.secondCoupletEnding}`;
 
       if (couplet.relatives.length == 2) {
         var secondRelative = couplet.relatives[1];
@@ -302,7 +340,7 @@ export default {
         if (!secondRelation || !secondRelative || !secondRelative.name) {
           relativeNumber = 1;
         } else {
-          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}${this.coupletOption.firstCoupletEnding}`;
+          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}`;
           relativeNumber = 2;
         }
       }
@@ -335,7 +373,7 @@ export default {
         this.replaceText(
           couplet.firstContent,
           'firstCoupletEnding',
-          this.coupletOption.firstCoupletEnding
+          firstRelation.firstCoupletEnding
         );
         return;
       }
@@ -349,7 +387,7 @@ export default {
         this.replaceText(
           couplet.firstContent,
           'firstCoupletEnding',
-          this.coupletOption.firstCoupletEnding
+          firstRelation.firstCoupletEnding
         );
 
         return;
@@ -367,10 +405,13 @@ export default {
         element.lineHeight = 1.26;
       }
       if (element.text.length == 9) {
-        element.lineHeight = 1.46;
+        element.lineHeight = 1.06;
       }
       if (element.text.length == 8) {
-        element.lineHeight = 1.56;
+        element.lineHeight = 1.26;
+      }
+      if (element.text.length == 7) {
+        element.lineHeight = 1.46;
       }
     },
     replaceText(template, key, value) {
@@ -541,7 +582,7 @@ export default {
     },
     async printCouplet() {
       try {
-        const response = await axios.post('http://192.168.1.48:5000/printer', {
+        const response = await axios.post(`${this.coupletOption.printerUrl}/printer`, {
           ImageDataUrl: await this.getDataUrl(),
         });
         console.log('Image data sent to backend successfully:', response.data);

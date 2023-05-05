@@ -108,7 +108,7 @@
         </div>
         <Button :disabled="!decedentName" type="primary" @click="addCouplet">新增挽联</Button>
       </div>
-      <Collapse v-model="value" accordion>
+      <Collapse accordion>
         <Panel name="1">
           高级设置
           <template #content>

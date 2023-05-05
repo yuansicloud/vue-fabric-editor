@@ -307,10 +307,24 @@ export default {
         }
       }
 
+      //下联部分
+      couplet.secondContent = JSON.parse(JSON.stringify(coupletSecondDefault));
+      this.replaceText(
+        couplet.secondContent,
+        'secondCoupletStarting',
+        this.coupletOption.secondCoupletStarting
+      );
+      this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
+      this.replaceText(
+        couplet.secondContent,
+        'secondCoupletEnding',
+        this.coupletOption.secondCoupletEnding
+      );
+      this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+      console.log('secondContent-after', couplet.secondContent);
+
       if (relativeNumber == 1) {
-        couplet.firstContent = coupletFirstSingleDefault;
-        couplet.secondContent = coupletSecondDefault;
-        // this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+        couplet.firstContent = JSON.parse(JSON.stringify(coupletFirstSingleDefault));
         //上联部分
         this.replaceText(couplet.firstContent, 'firstCoupletFull', couplet.firstText);
         this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
@@ -323,24 +337,10 @@ export default {
           'firstCoupletEnding',
           this.coupletOption.firstCoupletEnding
         );
-        //下联部分
-        this.replaceText(
-          couplet.secondContent,
-          'secondCoupletStarting',
-          this.coupletOption.secondCoupletStarting
-        );
-        this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
-        this.replaceText(
-          couplet.secondContent,
-          'secondCoupletEnding',
-          this.coupletOption.secondCoupletEnding
-        );
-        this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
         return;
       }
       if (relativeNumber == 2) {
-        couplet.firstContent = coupletFirstDoubleDefault;
-        couplet.secondContent = coupletSecondDefault;
+        couplet.firstContent = JSON.parse(JSON.stringify(coupletFirstDoubleDefault));
         //上联部分
         this.replaceText(couplet.firstContent, 'firstTitle', firstRelation.title);
         this.replaceText(couplet.firstContent, 'firstName', firstRelative.name);
@@ -356,7 +356,7 @@ export default {
       }
     },
     //设置行高
-    getTexteHight(element) {
+    getTextHeight(element) {
       if (element.text.length == 12) {
         element.lineHeight = 1.06;
       }
@@ -380,7 +380,7 @@ export default {
         return;
       }
       element.text = value;
-      this.getTexteHight(element);
+      this.getTextHeight(element);
     },
     showCoupletModal() {
       this.showModal = true;

@@ -99,7 +99,7 @@
         </div>
         <Button :disabled="!decedentName" type="primary" @click="addCouplet">新增挽联</Button>
       </div>
-      <Collapse v-model="value" accordion>
+      <Collapse accordion>
         <Panel name="1">
           高级设置
           <template #content>
@@ -147,7 +147,7 @@
           </template>
         </Panel>
       </Collapse>
-      <Scroll :on-reach-bottom="handleReachBottom" height="500">
+      <Scroll height="500">
         <div class="mt-3" v-for="(couplet, coupletIndex) in list" :key="coupletIndex">
           <Card>
             <template #title>
@@ -258,14 +258,12 @@ export default {
       selectedType: '',
       decedentName: '',
       showModal: false,
-      showSavingModal: false,
       autoSave: false,
     };
   },
   mounted() {
     // load local storage
     var storedOption = localStorage.getItem('coupletOption');
-    console.log(storedOption);
     if (storedOption != 'undefined') {
       this.coupletOption = JSON.parse(storedOption);
     }
@@ -275,43 +273,34 @@ export default {
       localStorage.setItem('coupletOption', JSON.stringify(this.coupletOptions));
     },
     updateCouplets() {
-      this.changeCoupletOption();
+      // this.changeCoupletOption();
+
       // Access the couplets list from the Vuex store
       const coupletsList = this.$store.state.couplets.couplets;
-
       // Iterate over the couplets list
-      coupletsList.forEach((couplet, index) => {
+      coupletsList.forEach((couplet) => {
         // Process each couplet and its index here
-        this.updateCouplet(couplet, index);
+        this.updateCouplet(couplet);
       });
     },
     updateCouplet(couplet) {
       if (!this.decedentName) {
         return;
       }
-
       var relativeNumber = 1;
-
       if (!couplet.relatives || couplet.relatives.length == 0) {
         return;
       }
-
       var firstRelative = couplet.relatives[0];
-
       var firstRelation = this.relationships.find((x) => x.key == firstRelative.relationship);
-
       if (!firstRelation || !firstRelative || !firstRelative.name) {
         return;
       }
-
       couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}`;
       couplet.secondText = `${this.coupletOption.secondCoupletStarting}${this.decedentName}${firstRelation.decedentTitle}${this.coupletOption.secondCoupletEnding}`;
-
       if (couplet.relatives.length == 2) {
         var secondRelative = couplet.relatives[1];
-
         var secondRelation = this.relationships.find((x) => x.key == secondRelative.relationship);
-
         if (!secondRelation || !secondRelative || !secondRelative.name) {
           relativeNumber = 1;
         } else {
@@ -320,11 +309,25 @@ export default {
         }
       }
 
+      //下联部分
+      couplet.secondContent = coupletSecondDefault;
+      this.replaceText(
+        couplet.secondContent,
+        'secondCoupletStarting',
+        this.coupletOption.secondCoupletStarting
+      );
+      this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
+      this.replaceText(
+        couplet.secondContent,
+        'secondCoupletEnding',
+        this.coupletOption.secondCoupletEnding
+      );
+      this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+
       if (relativeNumber == 1) {
         couplet.firstContent = coupletFirstSingleDefault;
-        couplet.secondContent = coupletSecondDefault;
         //上联部分
-        // this.getTexteHight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+        // this.getTextHeight(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
         this.replaceText(couplet.firstContent, 'firstCoupletFull', couplet.firstText);
         this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
 
@@ -336,24 +339,12 @@ export default {
           'firstCoupletEnding',
           this.coupletOption.firstCoupletEnding
         );
-        //下联部分
-        this.replaceText(
-          couplet.secondContent,
-          'secondCoupletStarting',
-          this.coupletOption.secondCoupletStarting
-        );
-        this.replaceText(couplet.secondContent, 'decedentName', this.decedentName);
-        this.replaceText(
-          couplet.secondContent,
-          'secondCoupletEnding',
-          this.coupletOption.secondCoupletEnding
-        );
-        this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
+
         return;
       }
+
       if (relativeNumber == 2) {
         couplet.firstContent = coupletFirstDoubleDefault;
-        couplet.secondContent = coupletSecondDefault;
         //上联部分
         this.replaceText(couplet.firstContent, 'firstTitle', firstRelation.title);
         this.replaceText(couplet.firstContent, 'firstName', firstRelative.name);
@@ -369,7 +360,7 @@ export default {
       }
     },
     //设置行高
-    getTexteHight(element) {
+    getTextHeight(element) {
       if (element.text.length == 12) {
         element.lineHeight = 1.06;
       }
@@ -383,7 +374,10 @@ export default {
         element.lineHeight = 1.06;
       }
       if (element.text.length == 8) {
-        element.lineHeight = 1.26;
+        element.lineHeight = 1.16;
+      }
+      if (element.text.length == 4) {
+        element.lineHeight = 1.06;
       }
     },
     replaceText(template, key, value) {
@@ -393,7 +387,7 @@ export default {
         return;
       }
       element.text = value;
-      this.getTexteHight(element);
+      this.getTextHeight(element);
     },
     showCoupletModal() {
       this.showModal = true;

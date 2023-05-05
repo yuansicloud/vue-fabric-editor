@@ -48,7 +48,7 @@
       @on-ok="selectBorderImage"
       @on-cancel="showBorderModal = false"
     >
-      <Form :model="borderOption" :rules="ruleInline" inline>
+      <Form :model="borderOption" inline>
         <FormItem prop="patternHeight" :label="$t('insertFile.pattern_height')">
           <InputNumber :max="200" :min="1" v-model="borderOption.patternHeight" />
         </FormItem>

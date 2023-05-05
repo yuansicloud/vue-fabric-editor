@@ -80,7 +80,6 @@ class EditorGroupText {
       textObject.off('editing:exited', resetGroup);
       this.canvas.add(group);
       this.canvas.discardActiveObject().renderAll();
-      console.log(111);
     };
     // 绑定取消事件
     textObject.on('editing:exited', resetGroup);

@@ -94,7 +94,6 @@ export default {
       const getTemp = axios.get(repoSrc + 'template/index.json');
       getTemp
         .then((res) => {
-          console.log(res, '111');
           this.list = res.data.data.map((item) => {
             item.tempUrl = repoSrc + item.tempUrl;
             item.src = repoSrc + item.src;

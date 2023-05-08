@@ -38,12 +38,12 @@ export default {
       jsonFile: null,
       list: [
         {
-          label: '海报模板',
+          label: '讣告黑色模板',
           tempUrl: 'src/templates/obituary/49234261-0187-4fdc-be80-f9dfb14c8bc6.json',
           src: 'src/templates/obituary/49234261-0187-4fdc-be80-f9dfb14c8bc6.png',
         },
         {
-          label: '旅游海报',
+          label: '讣告白色海报',
           tempUrl: 'src/templates/obituary/6ff9093a-4976-416b-8285-db5496842487.json',
           src: 'src/templates/obituary/6ff9093a-4976-416b-8285-db5496842487.png',
         },

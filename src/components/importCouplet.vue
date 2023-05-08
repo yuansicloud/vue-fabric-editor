@@ -82,9 +82,8 @@
     </div>
     <Modal v-model="showModal" :mask-closable="false" title="创建挽联" width="800">
       <div class="flex justify-between mb-1">
-        <div class="flex">
-          <div class="flex items-center font-bold">
-            <div>逝者名称：</div>
+        <Form class="flex" inline>
+          <FormItem label="逝者名称 :">
             <Input
               maxlength="4"
               type="text"
@@ -97,15 +96,18 @@
                 <Icon type="ios-person-outline"></Icon>
               </template>
             </Input>
-          </div>
-          <div class="flex font-bold items-center justify-between">
-            <div>性别：</div>
-            <RadioGroup v-model="decedentSex" @on-change="updateCouplets()">
-              <Radio label="男"></Radio>
-              <Radio label="女"></Radio>
-            </RadioGroup>
-          </div>
-        </div>
+          </FormItem>
+          <FormItem>
+            <div class="flex font-bold items-center justify-between">
+              <div>性别 ：</div>
+              <RadioGroup v-model="decedentSex" @on-change="updateCouplets()">
+                <Radio label="男"></Radio>
+                <Radio label="女"></Radio>
+              </RadioGroup>
+            </div>
+          </FormItem>
+        </Form>
+
         <Button :disabled="!decedentName" type="primary" @click="addCouplet">新增挽联</Button>
       </div>
       <Collapse v-model="value" accordion>
@@ -113,19 +115,6 @@
           高级设置
           <template #content>
             <Form ref="formAdvanced" :model="coupletOption" inline>
-              <!-- <FormItem label="上联结尾" prop="firstCoupletEnding">
-                <Input
-                  maxlength="2"
-                  type="text"
-                  v-model="coupletOption.firstCoupletEnding"
-                  placeholder="上联结尾"
-                  @on-change="updateCouplets()"
-                >
-                  <template #prepend>
-                    <Icon type="ios-person-outline"></Icon>
-                  </template>
-                </Input>
-              </FormItem> -->
               <FormItem label="下联开头" prop="secondCoupletStarting">
                 <Input
                   maxlength="4"
@@ -327,7 +316,7 @@ export default {
         return;
       }
 
-      couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}`;
+      couplet.firstText = `${firstRelation.title}${firstRelative.name}${firstRelation.mainPassage}${firstRelation.firstCoupletEnding}`;
       couplet.secondText = `${this.coupletOption.secondCoupletStarting}${
         this.decedentName
       }${this.getDecedentTitle(firstRelation)}${this.coupletOption.secondCoupletEnding}`;
@@ -340,7 +329,7 @@ export default {
         if (!secondRelation || !secondRelative || !secondRelative.name) {
           relativeNumber = 1;
         } else {
-          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}`;
+          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}${firstRelation.firstCoupletEnding}`;
           relativeNumber = 2;
         }
       }
@@ -363,7 +352,7 @@ export default {
 
       if (relativeNumber == 1) {
         couplet.firstContent = JSON.parse(JSON.stringify(coupletFirstSingleDefault));
-        //上联部分
+        // 上联部分;
         this.replaceText(couplet.firstContent, 'firstCoupletFull', couplet.firstText);
         this.replaceText(couplet.secondContent, 'secondCoupletFull', couplet.secondText);
 
@@ -405,13 +394,16 @@ export default {
         element.lineHeight = 1.26;
       }
       if (element.text.length == 9) {
-        element.lineHeight = 1.06;
+        element.lineHeight = 1.46;
       }
       if (element.text.length == 8) {
         element.lineHeight = 1.26;
       }
       if (element.text.length == 7) {
         element.lineHeight = 1.46;
+      }
+      if (element.text.length == 3) {
+        element.lineHeight = 0.86;
       }
     },
     replaceText(template, key, value) {

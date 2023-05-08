@@ -573,9 +573,22 @@ export default {
       this.downFile(this.getDataUrl(), 'png');
     },
     async printCouplet() {
+      var content = '';
       try {
+        switch (this.selectedType) {
+          case 'first':
+            content = this.list[this.selectedIndex].firstText;
+            break;
+          case 'second':
+            content = this.list[this.selectedIndex].secondText;
+            break;
+          default:
+            this.$Message.warning('无内容！');
+            break;
+        }
         const response = await axios.post(`${this.coupletOption.printerUrl}/printer`, {
           ImageDataUrl: await this.getDataUrl(),
+          content: content,
         });
         console.log('Image data sent to backend successfully:', response.data);
       } catch (error) {

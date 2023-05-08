@@ -29,7 +29,7 @@
 import select from '@/mixins/select';
 import { downFontByJSON } from '@/utils/utils';
 import axios from 'axios';
-const repoSrc = import.meta.env.APP_REPO;
+// const repoSrc = import.meta.env.APP_REPO;
 export default {
   name: 'ImportTmpl',
   mixins: [select],
@@ -39,25 +39,20 @@ export default {
       list: [
         {
           label: '海报模板',
-          tempUrl: repoSrc + 'template/49234261-0187-4fdc-be80-f9dfb14c8bc6.json',
-          src: repoSrc + 'template/49234261-0187-4fdc-be80-f9dfb14c8bc6.png',
+          tempUrl: 'src/templates/obituary/49234261-0187-4fdc-be80-f9dfb14c8bc6.json',
+          src: 'src/templates/obituary/49234261-0187-4fdc-be80-f9dfb14c8bc6.png',
         },
         {
           label: '旅游海报',
-          tempUrl: repoSrc + 'template/6ff9093a-4976-416b-8285-db5496842487.json',
-          src: repoSrc + 'template/6ff9093a-4976-416b-8285-db5496842487.png',
-        },
-        {
-          label: '邀请海报',
-          tempUrl: repoSrc + 'template/b40fee28-de9f-4304-a07e-2f55d36f137e.json',
-          src: repoSrc + 'template/b40fee28-de9f-4304-a07e-2f55d36f137e.png',
+          tempUrl: 'src/templates/obituary/6ff9093a-4976-416b-8285-db5496842487.json',
+          src: 'src/templates/obituary/6ff9093a-4976-416b-8285-db5496842487.png',
         },
       ],
     };
   },
-  created() {
-    this.getTempList();
-  },
+  // created() {
+  //   this.getTempList();
+  // },
   methods: {
     // 插入文件
     insertSvgFile() {
@@ -87,28 +82,28 @@ export default {
         });
     },
     // 获取模板列表数据
-    getTempList() {
-      this.$Spin.show({
-        render: (h) => h('div', this.$t('alert.loading_data')),
-      });
-      const getTemp = axios.get(repoSrc + 'template/index.json');
-      getTemp
-        .then((res) => {
-          this.list = res.data.data.map((item) => {
-            item.tempUrl = repoSrc + item.tempUrl;
-            item.src = repoSrc + item.src;
-            return item;
-          });
-          this.$Spin.hide();
-        })
-        .catch(this.$Spin.hide);
-    },
+    // getTempList() {
+    //   this.$Spin.show({
+    //     render: (h) => h('div', this.$t('alert.loading_data')),
+    //   });
+    //   const getTemp = axios.get(repoSrc + 'template/index.json');
+    //   getTemp
+    //     .then((res) => {
+    //       this.list = res.data.data.map((item) => {
+    //         item.tempUrl = repoSrc + item.tempUrl;
+    //         item.src = repoSrc + item.src;
+    //         return item;
+    //       });
+    //       this.$Spin.hide();
+    //     })
+    //     .catch(this.$Spin.hide);
+    // },
     // 获取模板数据
-    getTempData(tmplUrl) {
+    getTempData(tempUrl) {
       this.$Spin.show({
         render: (h) => h('div', this.$t('alert.loading_data')),
       });
-      const getTemp = axios.get(tmplUrl);
+      const getTemp = axios.get(tempUrl);
       getTemp.then((res) => {
         this.jsonFile = JSON.stringify(res.data);
         this.insertSvgFile();

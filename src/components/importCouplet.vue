@@ -130,7 +130,7 @@
               </FormItem>
               <FormItem label="下联结尾" prop="secondCoupletEnding">
                 <Input
-                  maxlength="2"
+                  maxlength="4"
                   type="text"
                   v-model="coupletOption.secondCoupletEnding"
                   placeholder="下联结尾"
@@ -143,7 +143,6 @@
               </FormItem>
               <FormItem label="本地IP地址" prop="printerUrl">
                 <Input
-                  maxlength="2"
                   type="text"
                   v-model="coupletOption.printerUrl"
                   placeholder="本地IP地址"
@@ -273,8 +272,15 @@ export default {
     // load local storage
     var storedOption = localStorage.getItem('coupletOption');
     console.log(storedOption);
-    if (storedOption != 'undefined') {
+    if (storedOption !== null && storedOption != 'undefined') {
       this.coupletOption = JSON.parse(storedOption);
+    } else {
+      // 初始化coupletOption对象，避免报错
+      this.coupletOption = {
+        secondCoupletStarting: '沉痛哀悼',
+        secondCoupletEnding: '千古',
+        printerUrl: 'http://127.0.0.1:5000',
+      };
     }
   },
   methods: {

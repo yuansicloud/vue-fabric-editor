@@ -36,7 +36,7 @@ export const relationships = [
   //   decedentTitle: '泣挽',
   // },
   {
-    key: '孝女',
+    key: '女儿',
     title: '孝女',
     mainPassage: '携全家',
     maleDecedentTitle: '大人',
@@ -44,7 +44,7 @@ export const relationships = [
     firstCoupletEnding: '泣挽',
   },
   {
-    key: '孝婿',
+    key: '女婿',
     title: '孝婿',
     mainPassage: '携全家',
     maleDecedentTitle: '大人',
@@ -52,7 +52,7 @@ export const relationships = [
     firstCoupletEnding: '泣挽',
   },
   {
-    key: '孝儿',
+    key: '儿子',
     title: '孝儿',
     mainPassage: '携全家',
     maleDecedentTitle: '大人',

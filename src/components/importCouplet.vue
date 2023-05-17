@@ -335,7 +335,7 @@ export default {
         if (!secondRelation || !secondRelative || !secondRelative.name) {
           relativeNumber = 1;
         } else {
-          couplet.firstText = `${firstRelation.title}${firstRelative.name},${secondRelation.title}${secondRelative.name}${firstRelation.mainPassage}${firstRelation.firstCoupletEnding}`;
+          couplet.firstText = `${firstRelation.secondTitle}${firstRelative.name},${secondRelation.secondTitle}${secondRelative.name}${firstRelation.mainPassage}${firstRelation.firstCoupletEnding}`;
           relativeNumber = 2;
         }
       }
@@ -375,9 +375,14 @@ export default {
       if (relativeNumber == 2) {
         couplet.firstContent = JSON.parse(JSON.stringify(coupletFirstDoubleDefault));
         //上联部分
-        this.replaceText(couplet.firstContent, 'firstTitle', firstRelation.title);
+        this.replaceText(
+          couplet.firstContent,
+          'firstCoupletStarting',
+          firstRelation.firstCoupletStarting
+        );
+        this.replaceText(couplet.firstContent, 'firstTitle', firstRelation.secondTitle);
         this.replaceText(couplet.firstContent, 'firstName', firstRelative.name);
-        this.replaceText(couplet.firstContent, 'secondTitle', secondRelation.title);
+        this.replaceText(couplet.firstContent, 'secondTitle', secondRelation.secondTitle);
         this.replaceText(couplet.firstContent, 'secondName', secondRelative.name);
         this.replaceText(
           couplet.firstContent,

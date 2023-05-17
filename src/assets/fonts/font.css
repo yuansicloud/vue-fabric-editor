@@ -12,3 +12,7 @@
   font-family: '鸿雷行书简体';
   src: url('./cn/鸿雷行书简体.ttf');
 }
+@font-face {
+  font-family: '三极行楷简体';
+  src: url('./cn/三极行楷简体-粗.ttf');
+}

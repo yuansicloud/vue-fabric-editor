@@ -19,6 +19,10 @@ const cnList = [
     name: '鸿雷行书简体',
     fontFamily: '鸿雷行书简体',
   },
+  {
+    name: '三极行楷简体',
+    fontFamily: '三极行楷简体',
+  },
 ];
 
 const enList = [];
